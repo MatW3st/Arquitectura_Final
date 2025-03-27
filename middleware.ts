@@ -3,7 +3,6 @@ import { NextResponse, NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const userAgent = request.headers.get("user-agent") || "";
-  const ip = getClientIp(request);
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
@@ -11,13 +10,6 @@ export function middleware(request: NextRequest) {
   if (blockedAgents.some((agent) => userAgent.includes(agent))) {
     return NextResponse.json({ error: "Acceso denegado" }, { status: 403 });
   }
-
-  // Comentar el rate limiting temporalmente para desarrollo
-  /*
-  if (checkRateLimit(ip)) {
-    return NextResponse.json({ error: "Demasiadas solicitudes" }, { status: 429 });
-  }
-  */
 
   if (!token && request.nextUrl.pathname.startsWith("/interfaz")) {
     return NextResponse.redirect(new URL("/login", request.url));
@@ -43,19 +35,6 @@ export function middleware(request: NextRequest) {
   response.headers.set("X-Nonce", nonce);
 
   return response;
-}
-
-function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  return forwarded ? forwarded.split(",")[0].trim() : "127.0.0.1";
-}
-
-const requestCounts: Record<string, number> = {};
-function checkRateLimit(ip: string): boolean {
-  if (!ip) return false;
-  requestCounts[ip] = (requestCounts[ip] || 0) + 1;
-  setTimeout(() => delete requestCounts[ip], 60000);
-  return requestCounts[ip] > 20;
 }
 
 export const config = {
