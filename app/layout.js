@@ -1,37 +1,49 @@
 import './globals.css';
+import Head from 'next/head';
 
+// Definir metadatos para SEO y accesibilidad
 export const metadata = {
-  title: 'Tu Aplicación',
-  description: 'Planeación de Producción',
+  title: 'Planeación de Producción',
+  description: 'Aplicación para la planeación de producción de tu empresa.',
+  keywords: 'planeación, producción, sucursales, gestión, industria',
+  author: 'Tu Nombre o Empresa',
+  openGraph: {
+    title: 'Planeación de Producción',
+    description: 'Aplicación para la planeación de producción de tu empresa.',
+    url: 'https://prueba-moleculer.vercel.app', // Reemplaza con tu dominio de producción
+    siteName: 'Planeación de Producción',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Planeación de Producción',
+    description: 'Aplicación para la planeación de producción de tu empresa.',
+  },
 };
 
-// Usamos un componente dinámico para obtener el nonce desde el encabezado
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
-      <head>
-        {/* Cargar Bootstrap desde un archivo externo */}
+      <Head>
+        {/* Metadatos básicos */}
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        {/* Cargar Bootstrap CSS localmente con precarga */}
         <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="preload"
+          href="/css/bootstrap.min.css"
+          as="style"
+          onLoad="this.onload=null;this.rel='stylesheet'"
         />
-        {/* Inyectar el nonce como una variable global para que los scripts del cliente lo usen */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.__nonce__ = "${typeof window !== 'undefined' ? document.currentScript?.nonce || '' : ''}";
-            `,
-          }}
-        />
-      </head>
-      <body>
-        {children}
-        {/* Cargar el script de Bootstrap con el nonce */}
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-          nonce={typeof window !== 'undefined' ? window.__nonce__ : undefined}
-        />
-      </body>
+        <noscript>
+          <link rel="stylesheet" href="/css/bootstrap.min.css" />
+        </noscript>
+
+        {/* Cargar Bootstrap JS localmente con defer */}
+        <script defer src="/js/bootstrap.bundle.min.js" />
+      </Head>
+      <body>{children}</body>
     </html>
   );
 }
